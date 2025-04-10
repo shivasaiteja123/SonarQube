@@ -1,0 +1,91 @@
+pipeline {
+    agent any
+    environment {
+        sourceFolder = "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\ai\\Publish\\" 
+        destinationFolder = "E:\\aiscipro-demo\\test\\ai"
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', 
+                          branches: [[name: '*/main']], 
+                          userRemoteConfigs: [[credentialsId: 'CORE', 
+                                               url: 'https://github.com/Coresonantiot/AiSciPro-AI-Hexa.git']]])
+            }
+        }
+
+        // Add SonarQube analysis stage
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    // Make sure to replace 'SonarQube' with the name you gave your SonarQube server in Jenkins
+                    withSonarQubeEnv('SonarQube') {
+                        // Run SonarQube scanner for your project
+                        bat "sonar-scanner -Dsonar.projectKey=SonarQube -Dsonar.sources=."
+                    }
+                }
+            }
+        }
+
+        stage('Restore All Project Dependencies') {
+            steps {
+                echo 'Restore AiSciPro-AI-Hexa Project Dependencies'
+                bat "dotnet restore .\\src\\AiSciPro.Core\\AiSciPro.AI.Service.sln"
+            }
+        }
+
+        stage('Build AiSciPro-AI-Hexa Project and Microservices') {
+            steps {
+                echo 'Building AiSciPro-AI-Hexa Project and Microservices'
+                bat "dotnet build .\\src\\AiSciPro.Core\\AiSciPro.AI.Service.sln"
+            }
+        }
+
+        stage('Publish AiSciPro-AI-Hexa Project and Microservices') {
+            steps {
+                echo 'Publishing AiSciPro.AI.Gateway'
+                bat "dotnet publish .\\src\\AiSciPro.Core\\AiSciPro.Gateway\\AiSciPro.Gateway.ProjectManagement\\AiSciPro.Gateway.ProjectManagement.csproj -o Publish\\AiSciPro.Gateway.ProjectManagement"
+            }
+        }
+
+        stage('Deployment Configuration') {
+            steps {
+                echo 'Configuring Deployment Config for AiSciPro-AI-Hexa Azure Cloud'
+                echo 'Copy Deploy Config AiSciPro.AI.Gateway.ProjectManagement'
+                bat "copy /Y .\\DeployConfig\\DEV\\AiSciPro.Gateway.ProjectManagement\\. .\\Publish\\AiSciPro.Gateway.ProjectManagement\\"
+                echo 'All Deploy Configuration Set Successfully'
+            }
+        }
+
+        stage('Archive') {
+            steps {
+                echo 'Archiving AiSciPro-AI-Hexa Artifacts'
+                archiveArtifacts artifacts: 'Publish/**', onlyIfSuccessful: true
+            }
+        }
+
+        stage('Deploy - Staging') {
+            steps {
+                script {
+                    echo 'Preparing AiSciPro-AI-Hexa Publish Artifacts for Deploying on Local server.'
+                    bat "xcopy /Y \"${sourceFolder}\" \"${destinationFolder}\" /E /I"
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Cleaning Up Workspace'
+            bat "rmdir /q /s .\\Publish"
+        }
+        success {
+            echo 'CICD QA AiSciPro-AI-Hexa Succeeded!'
+        }
+        unstable {
+            echo 'Something Wrong CICD Failed'
+        }
+        failure {
+            echo 'CICD Failed'
+        }
+    }
+}
