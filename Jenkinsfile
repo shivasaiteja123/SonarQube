@@ -3,8 +3,7 @@ pipeline {
     environment {
         sourceFolder = "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\ai\\Publish\\" 
         destinationFolder = "E:\\aiscipro-demo\\test\\ai"
-        sonarScannerPath = bat "\"C:\\SonarScanner\\sonar-scanner-7.0.2.4839-windows-x64\\bin\\sonar-scanner.bat\" ..."
-
+        sonarScannerPath = "C:\\SonarScanner\\sonar-scanner-7.0.2.4839-windows-x64\\bin\\sonar-scanner.bat"  // SonarQube scanner path
     }
     stages {
         stage('Checkout') {
@@ -19,7 +18,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    withSonarQubeEnv('SonarQube') {
+                    withSonarQubeEnv('SonarQube') {  // Inject SonarQube environment variables
                         bat "\"${sonarScannerPath}\" -Dsonar.projectKey=SonarQube -Dsonar.sources=. -Dsonar.host.url=http://13.233.108.235:9000 -Dsonar.login=sqa_294a4cbeeac09dec243f57f10da8f4cb0c3a0241"
                     }
                 }
@@ -28,7 +27,7 @@ pipeline {
 
         stage('Restore All Project Dependencies') {
             steps {
-                echo 'Restore AiSciPro-AI-Hexa Project Dependencies'
+                echo 'Restoring AiSciPro-AI-Hexa Project Dependencies'
                 bat "dotnet restore .\\src\\AiSciPro.Core\\AiSciPro.AI.Service.sln"
             }
         }
@@ -51,7 +50,7 @@ pipeline {
             steps {
                 echo 'Configuring Deployment Config for AiSciPro-AI-Hexa Azure Cloud'
                 echo 'Copy Deploy Config AiSciPro.AI.Gateway.ProjectManagement'
-                bat "copy /Y .\\DeployConfig\\DEV\\AiSciPro.Gateway.ProjectManagement\\. .\\Publish\\AiSciPro.Gateway.ProjectManagement\\"
+                bat "xcopy /Y .\\DeployConfig\\DEV\\AiSciPro.Gateway.ProjectManagement\\. .\\Publish\\AiSciPro.Gateway.ProjectManagement\\"
                 echo 'All Deploy Configuration Set Successfully'
             }
         }
@@ -82,7 +81,7 @@ pipeline {
             echo 'CICD QA AiSciPro-AI-Hexa Succeeded!'
         }
         unstable {
-            echo 'Something Wrong CICD Failed'
+            echo 'Something went wrong. CICD failed!'
         }
         failure {
             echo 'CICD Failed'
