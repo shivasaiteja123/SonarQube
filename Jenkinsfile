@@ -3,7 +3,7 @@ pipeline {
     environment {
         sourceFolder = "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\ai\\Publish\\" 
         destinationFolder = "E:\\aiscipro-demo\\test\\ai"
-        sonarScannerPath = "C:\\SonarScanner\\sonar-scanner-7.0.2.4839-windows-x64\\bin\\sonar-scanner.bat"  // SonarQube scanner path
+        sonarScannerPath = "C:\\SonarScanner\\sonar-scanner-7.0.2.4839-windows-x64\\bin\\sonar-scanner.bat"
     }
     stages {
         stage('Checkout') {
@@ -18,8 +18,8 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    withSonarQubeEnv('SonarQube') {  // Inject SonarQube environment variables
-                        bat "\"${sonarScannerPath}\" -Dsonar.projectKey=SonarQube -Dsonar.sources=. -Dsonar.host.url=http://13.233.108.235:9000 -Dsonar.login=sqa_294a4cbeeac09dec243f57f10da8f4cb0c3a0241"
+                    withSonarQubeEnv('SonarQube') {
+                        bat "call ${sonarScannerPath} -Dsonar.projectKey=SonarQube -Dsonar.sources=. -Dsonar.host.url=http://13.233.108.235:9000 -Dsonar.login=sqa_294a4cbeeac09dec243f57f10da8f4cb0c3a0241"
                     }
                 }
             }
