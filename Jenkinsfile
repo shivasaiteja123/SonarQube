@@ -5,7 +5,6 @@ pipeline {
         destinationFolder = "E:\\aiscipro-demo\\test\\ai"
         sonarScannerPath = bat "\"C:\\SonarScanner\\sonar-scanner-7.0.2.4839-windows-x64\\bin\\sonar-scanner.bat\" ..."
 
-"
     }
     stages {
         stage('Checkout') {
