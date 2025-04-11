@@ -3,6 +3,7 @@ pipeline {
     environment {
         sourceFolder = "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\ai\\Publish\\" 
         destinationFolder = "E:\\aiscipro-demo\\test\\ai"
+        sonarScannerPath = "C:\\SonarScanner\\sonar-scanner-7.0.2.4839-windows-x64\\bin\\sonar-scanner.bat"
     }
     stages {
         stage('Checkout') {
@@ -14,14 +15,11 @@ pipeline {
             }
         }
 
-        // Add SonarQube analysis stage
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // Make sure to replace 'SonarQube' with the name you gave your SonarQube server in Jenkins
                     withSonarQubeEnv('SonarQube') {
-                        // Run SonarQube scanner for your project
-                        bat "sonar-scanner -Dsonar.projectKey=SonarQube -Dsonar.sources=."
+                        bat "\"${sonarScannerPath}\" -Dsonar.projectKey=SonarQube -Dsonar.sources=. -Dsonar.host.url=http://13.233.108.235:9000 -Dsonar.login=sqa_294a4cbeeac09dec243f57f10da8f4cb0c3a0241"
                     }
                 }
             }
@@ -73,6 +71,7 @@ pipeline {
             }
         }
     }
+
     post {
         always {
             echo 'Cleaning Up Workspace'
