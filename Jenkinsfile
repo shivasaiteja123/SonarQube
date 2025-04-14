@@ -3,7 +3,7 @@ pipeline {
     environment {
         sourceFolder = "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\ai\\Publish\\" 
         destinationFolder = "E:\\aiscipro-demo\\test\\ai"
-        sonarScannerPath = "C:\\SonarScanner\\sonar-scanner-7.0.2.4839-windows-x64\\bin\\sonar-scanner.bat"
+        sonarScannerPath = "C:\sonar-scanner-cli-7.0.2.4839-windows-x64\sonar-scanner\bin"
     }
     stages {
         stage('Checkout') {
